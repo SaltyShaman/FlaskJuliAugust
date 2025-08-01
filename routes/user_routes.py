@@ -2,7 +2,7 @@
 #routes/user_routes.py
 
 from flask import Blueprint, jsonify, request
-from services.user_service import get_all_users, add_user
+from services.user_service import get_all_users, add_user, get_user_by_id, update_user, delete_user
 from test_data.dummy_users import dummy_users
 
 user_bp = Blueprint('user_bp', __name__)
