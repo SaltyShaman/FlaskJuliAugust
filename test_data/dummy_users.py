@@ -1,22 +1,12 @@
 #test_data/dummy_users.py
 
+from models.user import User
+
 dummy_users = [
-    {
-        "first_name": "Kristoffer",
-        "last_name": "Gillesberg",
-        "email": "kristoffer@example.com",
-        "role": "admin"
-    },
-    {
-        "first_name": "Anna",
-        "last_name": "Hansen",
-        "email": "anna@example.com",
-        "role": "tech_support"
-    },
-    {
-        "first_name": "Mikkel",
-        "last_name": "Jensen",
-        "email": "mikkel@example.com",
-        "role": "owner"
-    }
+    User("Kristoffer", "Gillesberg", "kristoffer@example.com", "admin"),
+    User("Anna", "Hansen", "anna@example.com", "tech_support"),
+    User("Mikkel", "Jensen", "mikkel@example.com", "owner")
 ]
+
+def dummy_users_as_dicts():
+    return [user.__dict__ for user in dummy_users]

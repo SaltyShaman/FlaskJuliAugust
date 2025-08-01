@@ -2,6 +2,11 @@
 
 from db import get_db_connection
 import MySQLdb
+from models.user import User
+
+from db import get_db_connection
+import MySQLdb
+from models.user import User
 
 def get_all_users():
     try:
@@ -10,7 +15,8 @@ def get_all_users():
         cursor.execute("""
                        SELECT id, first_name, last_name, email, role, created_at FROM users
                        """)
-        return cursor.fetchall()
+        rows = cursor.fetchall()
+        return [User(**row) for row in rows]
     except Exception as e:
         return {"error": str(e)}
     finally:
@@ -20,7 +26,7 @@ def get_all_users():
 def add_user(data):
     try:
         connection = get_db_connection()
-        cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = connection.cursor()
         cursor.execute("""
                        INSERT INTO users (first_name, last_name, email, role)
                        VALUES (%s, %s, %s, %s)
@@ -31,14 +37,13 @@ def add_user(data):
                            data["role"]
                        ))
         connection.commit()
-        data["id"] = cursor.lastrowid
-        return data
+        user_id = cursor.lastrowid
+        return get_user_by_id(user_id)
     except Exception as e:
         return {"error": str(e)}
     finally:
         cursor.close()
         connection.close()
-
 
 def get_user_by_id(user_id):
     try:
@@ -48,18 +53,21 @@ def get_user_by_id(user_id):
                        SELECT id, first_name, last_name, email, role, created_at
                        FROM users WHERE id = %s
                        """, (user_id,))
-        return cursor.fetchone()
+        row = cursor.fetchone()
+        if row:
+            return User(**row)
+        else:
+            return None
     except Exception as e:
         return {"error": str(e)}
     finally:
         cursor.close()
         connection.close()
 
-
 def update_user(user_id, data):
     try:
         connection = get_db_connection()
-        cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = connection.cursor()
         cursor.execute("""
                        UPDATE users
                        SET first_name = %s, last_name = %s, email = %s, role = %s
@@ -91,4 +99,3 @@ def delete_user(user_id):
     finally:
         cursor.close()
         connection.close()
-
