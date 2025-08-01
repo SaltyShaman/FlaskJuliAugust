@@ -7,9 +7,10 @@ def get_all_users():
     try:
         connection = get_db_connection()
         cursor = connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT id, username, email, created_at FROM users")
-        users = cursor.fetchall()
-        return users
+        cursor.execute("""
+                       SELECT id, first_name, last_name, email, role, created_at FROM users
+                       """)
+        return cursor.fetchall()
     except Exception as e:
         return {"error": str(e)}
     finally:
@@ -21,9 +22,14 @@ def add_user(data):
         connection = get_db_connection()
         cursor = connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("""
-                       INSERT INTO users (username, email)
-                       VALUES (%s, %s)
-                       """, (data["username"], data["email"]))
+                       INSERT INTO users (first_name, last_name, email, role)
+                       VALUES (%s, %s, %s, %s)
+                       """, (
+                           data["first_name"],
+                           data["last_name"],
+                           data["email"],
+                           data["role"]
+                       ))
         connection.commit()
         data["id"] = cursor.lastrowid
         return data

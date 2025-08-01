@@ -33,9 +33,14 @@ def insert_dummy_users():
         cursor = connection.cursor()
         for user in dummy_users:
             cursor.execute("""
-                           INSERT IGNORE INTO users (username, email)
-                VALUES (%s, %s)
-                           """, (user["username"], user["email"]))
+                           INSERT IGNORE INTO users (first_name, last_name, email, role)
+                VALUES (%s, %s, %s, %s)
+                           """, (
+                               user["first_name"],
+                               user["last_name"],
+                               user["email"],
+                               user["role"]
+                           ))
         connection.commit()
         return "✅ Dummy users inserted (duplicates ignored)."
     except Exception as e:
@@ -50,16 +55,19 @@ def create_users_table():
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
+        cursor.execute("DROP TABLE IF EXISTS users")  # <-- Drop gammel tabel
         cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS users (
-                                                            id INT AUTO_INCREMENT PRIMARY KEY,
-                                                            username VARCHAR(50) NOT NULL UNIQUE,
-                           email VARCHAR(100),
-                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                           );
+                       CREATE TABLE users (
+                                              id INT AUTO_INCREMENT PRIMARY KEY,
+                                              first_name VARCHAR(50),
+                                              last_name VARCHAR(50),
+                                              email VARCHAR(100) NOT NULL UNIQUE,
+                                              role VARCHAR(50),
+                                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                       );
                        """)
         connection.commit()
-        return "✅ 'users' table created (or already exists)."
+        return "✅ 'users' table recreated with new columns."
     except Exception as e:
         return f"❌ Error: {str(e)}"
     finally:
